@@ -1,0 +1,32 @@
+[
+  {
+    "timestamp": "2026-05-02T21:49:00",
+    "user_id": "u001",
+    "action": "file_access",
+    "resource_path": "\\\\fileserver01\\finance\\q2_forecast.xlsx"
+  },
+  {
+    "timestamp": "2026-05-01T02:15:00",
+    "user_id": "u002",
+    "action": "file_access",
+    "resource_path": "\\\\fileserver01\\hr\\salary_master.xlsx"
+  },
+  {
+    "timestamp": "2026-05-01T10:05:00",
+    "user_id": "u003",
+    "action": "file_access",
+    "resource_path": "\\\\fileserver01\\it\\runbook.pdf"
+  },
+  {
+    "timestamp": "2026-05-01T23:45:00",
+    "user_id": "u001",
+    "action": "file_access",
+    "resource_path": "\\\\fileserver01\\finance\\budget_raw.csv"
+  },
+  {
+    "timestamp": "2026-05-01T01:30:00",
+    "user_id": "u002",
+    "action": "file_access",
+    "resource_path": "\\\\fileserver01\\finance\\sensitive_report.xlsx"
+  }
+]

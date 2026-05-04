@@ -1,0 +1,20 @@
+[
+  {
+    "user_id": "u001",
+    "is_on_leave": false,
+    "resignation_notified": true,
+    "department": "Finance"
+  },
+  {
+    "user_id": "u002",
+    "is_on_leave": true,
+    "resignation_notified": false,
+    "department": "HR"
+  },
+  {
+    "user_id": "u003",
+    "is_on_leave": false,
+    "resignation_notified": false,
+    "department": "IT Operations"
+  }
+]

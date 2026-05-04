@@ -1,0 +1,26 @@
+[
+  {
+    "user_id": "u001",
+    "privilege_level": "high",
+    "allowed_resources": [
+      "\\\\fileserver01\\finance\\",
+      "\\\\fileserver01\\shared\\"
+    ]
+  },
+  {
+    "user_id": "u002",
+    "privilege_level": "medium",
+    "allowed_resources": [
+      "\\\\fileserver01\\hr\\",
+      "\\\\fileserver01\\shared\\"
+    ]
+  },
+  {
+    "user_id": "u003",
+    "privilege_level": "low",
+    "allowed_resources": [
+      "\\\\fileserver01\\it\\",
+      "\\\\fileserver01\\shared\\"
+    ]
+  }
+]
