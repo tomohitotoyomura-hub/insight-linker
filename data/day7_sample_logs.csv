@@ -1,0 +1,12 @@
+timestamp,user_id,action,resource,result
+2026-05-04T09:00:15+09:00,u001,login,portal,success
+2026-05-04T09:02:10+09:00,u001,read,/shared/hr/payroll_2025.xlsx,success
+2026-05-04T09:05:33+09:00,u001,download,/shared/hr/payroll_2025.xlsx,success
+2026-05-04T23:48:02+09:00,u001,read,/restricted/hr/executive_bonus_2025.xlsx,denied
+2026-05-04T23:49:10+09:00,u001,read,/restricted/hr/executive_bonus_2025.xlsx,denied
+2026-05-04T23:50:45+09:00,u002,login,portal,success
+2026-05-04T23:52:01+09:00,u002,change_permission,/projects/insider_project/confidential.docx,success
+2026-05-04T23:54:27+09:00,u002,download,/projects/insider_project/confidential.docx,success
+2026-05-04T10:15:00+09:00,u003,login,portal,success
+2026-05-04T10:16:22+09:00,u003,read,/shared/general/handbook.pdf,success
+2026-05-04T10:20:05+09:00,u003,logout,portal,success

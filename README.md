@@ -65,21 +65,22 @@ The Day7 extension also looks at grouped activity over time, so suspicious behav
 .
 ├─ app/
 │  ├─ core_engine.py      # Risk scoring logic
-│  ├─ day7_analysis.py    # Session and user-level risk aggregation
 │  ├─ loader.py           # JSON -> dataclass loaders
 │  ├─ models.py           # Domain models and EvaluationResult
 │  └─ report_gen.py       # Markdown report generator
 │
 ├─ data/
 │  ├─ raw/
-│  │  ├─ access_privileges.json
-│  │  ├─ hr_context.json
-│  │  └─ user_activity.json
+│  ├─ access_privileges.json
+│  ├─ hr_context.json
+│  ├─ user_activity.json
 │  └─ day7_sample_logs.csv
 │
 ├─ outputs/
 │  └─ (generated) insight reports
 │
+├─ day7_analysis.py       # Session and user-level risk aggregation (Day7)
+├─ requirements.txt
 ├─ main.py
 └─ README.md
 ```
@@ -104,12 +105,12 @@ The Day7 extension also looks at grouped activity over time, so suspicious behav
   Applies scoring logic and returns a structured evaluation result.
 
 
-- `day7_analysis.py`  
-  Groups log events into 30-minute sessions, scores each session, and aggregates final user-level risk.
-
-
 - `report_gen.py`  
   Builds a Markdown report for human review.
+
+
+- `day7_analysis.py`  
+  Standalone Day7 module that groups log events into 30-minute sessions, scores each session, and aggregates final user-level risk.
 
 
 - `main.py`  
@@ -262,7 +263,7 @@ source .venv/bin/activate
 
 
 ```bash
-pip install pandas
+pip install -r requirements.txt
 ```
 
 
