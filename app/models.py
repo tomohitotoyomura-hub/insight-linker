@@ -5,7 +5,7 @@ from typing import List
 @dataclass
 class UserActivity:
     """
-    SIEM やログ管理システムから取得したユーザーアクティビティの1イベント分。
+    SIEM やログ管理システムから取得したユーザーアクティビティの 1 イベント分。
     MVP では timestamp は文字列、resource_path は単純なパス文字列として扱う。
     """
     timestamp: str
@@ -17,7 +17,7 @@ class UserActivity:
 @dataclass
 class HRContext:
     """
-    人事システムのコンテキスト情報。
+    人事システム由来のコンテキスト情報。
     休暇中かどうか、退職通知済みかどうか、所属部署などを表す。
     """
     user_id: str
@@ -29,24 +29,24 @@ class HRContext:
 @dataclass
 class AccessPrivilege:
     """
-    権限管理（AD 等）の情報。
-    ユーザーの権限レベルと、アクセスを許可されたリソースの一覧。
+    権限管理（例: AD）の情報。
+    ユーザーの権限レベルと、アクセスを許可されたリソースパスの一覧。
     """
     user_id: str
     privilege_level: str
     allowed_resources: List[str]
 
+
 @dataclass
 class EvaluationResult:
     """
-    Insight-Linker における 1 イベント分のリスク評価結果。
+    Insight-Linker における 1 イベント分のリスク評価結果を表すモデル。
 
-    - event_* 系: 元の行動イベントの情報
-    - evaluation_* 系: 評価がいつ・どのロジックで行われたか
-    - risk_* 系: リスクスコアリングの結果
-    - *_flags 系: データ欠損や注意すべき前提条件
+    - event_* : 元の行動イベントの情報
+    - evaluated_* / scoring_* : 評価がいつ・どのロジックで行われたか
+    - risk_* : リスクスコアとレベル
+    - *_flags : データ欠損や注意すべき前提条件
     """
-
     # 元イベント情報
     event_id: str
     timestamp: str

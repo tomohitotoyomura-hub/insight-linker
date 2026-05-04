@@ -33,6 +33,7 @@ Insight-Linker is a practice project designed to model that idea in code by corr
 - Generate a Markdown report focused on Medium and High risk events.
 - Group Day7 sample logs into sessions and calculate session-level risk.
 - Aggregate final user-level risk based on session outcomes.
+- Include session-level and user-level risk tables in the generated Markdown report.
 
 
 ---
@@ -70,7 +71,6 @@ The Day7 extension also looks at grouped activity over time, so suspicious behav
 │  └─ report_gen.py       # Markdown report generator
 │
 ├─ data/
-│  ├─ raw/
 │  ├─ access_privileges.json
 │  ├─ hr_context.json
 │  ├─ user_activity.json
@@ -79,8 +79,8 @@ The Day7 extension also looks at grouped activity over time, so suspicious behav
 ├─ outputs/
 │  └─ (generated) insight reports
 │
-├─ day7_analysis.py       # Session and user-level risk aggregation (Day7)
 ├─ requirements.txt
+├─ day7_analysis.py    # Session and user-level risk aggregation
 ├─ main.py
 └─ README.md
 ```
@@ -106,11 +106,11 @@ The Day7 extension also looks at grouped activity over time, so suspicious behav
 
 
 - `report_gen.py`  
-  Builds a Markdown report for human review.
+  Builds a Markdown report for human review, including event-level findings and Day7 session/user summaries when available.
 
 
 - `day7_analysis.py`  
-  Standalone Day7 module that groups log events into 30-minute sessions, scores each session, and aggregates final user-level risk.
+  Groups log events into 30-minute sessions, scores each session, and aggregates final user-level risk.
 
 
 - `main.py`  
@@ -225,7 +225,7 @@ The aggregation also includes:
 - `pandas` for Day7 session aggregation
 
 
-The core MVP logic is implemented in Python modules, while Day7 adds tabular session analysis on top of the event-level model.[file:279]
+The core MVP logic is implemented in Python modules, while Day7 adds tabular session analysis on top of the event-level model.
 
 
 ---
@@ -238,7 +238,7 @@ The core MVP logic is implemented in Python modules, while Day7 adds tabular ses
 
 
 ```bash
-git clone [https://github.com/tomohitotoyomura-hub/insight-linker.git](https://github.com/tomohitotoyomura-hub/insight-linker.git)
+git clone https://github.com/tomohitotoyomura-hub/insight-linker.git
 cd insight-linker
 ```
 
@@ -249,10 +249,8 @@ cd insight-linker
 ```bash
 python -m venv .venv
 
-
 # Windows PowerShell
 .venv\Scripts\Activate.ps1
-
 
 # macOS / Linux
 source .venv/bin/activate
@@ -324,11 +322,11 @@ user_id final_risk_level  total_score  session_count  high_session_count  medium
    u002           Medium            5              1                   0                     1                  0
    u003              Low            0              1                   0                     0                  1
 
-Markdown report generated: outputs/20260505_010238_insight_report.md
+Markdown report generated: outputs/20260505_073903_insight_report.md
 ```
 
 
-This sample reflects the verified Day7 state, combining event-level scoring with session-level and user-level risk aggregation.[file:279]
+This sample reflects the verified Day8 state, combining event-level scoring with session-level and user-level risk aggregation, and generating a single Markdown report that includes all three layers.
 
 
 ---
@@ -337,7 +335,7 @@ This sample reflects the verified Day7 state, combining event-level scoring with
 ## Sample report output
 
 
-A generated report includes summary statistics and detailed findings for Medium and High risk events.
+A generated report includes summary statistics, detailed findings for Medium and High risk events, and Day7 session-level and user-level summaries.
 
 
 Example:
@@ -346,36 +344,78 @@ Example:
 ```markdown
 # Insight-Linker Risk Report
 
-
-Generated at: 2026-05-05T01:02:38
-Target period: 2026-05-01 (sample data)
+Generated at: 2026-05-05T07:39:03
+Target period: 2026-05-01 to 2026-05-02 (sample data)
 Unique users: 3
 Scoring profile: MVP v1 (3 rules: leave status, resignation notice, unauthorized access)
 
-
 ## Summary
-
 
 - Total events: 5
 - High risk events: 1 (20%)
 - Medium risk events: 2 (40%)
 - Low risk events: 2 (40%)
 
-
 ## High Risk Findings
-
 
 ### User u002 / 2026-05-01T01:30:00
 - Risk level: High
 - Risk score: 5
 - Reasons: Access during leave, Access to unauthorized resource
+
+## Medium Risk Findings
+
+### User u002 / 2026-05-01T02:15:00
+- Risk level: Medium
+- Risk score: 2
+- Reasons: Access during leave
+
+### User u001 / 2026-05-01T23:45:00
+- Risk level: Medium
+- Risk score: 3
+- Reasons: After-hours access by resignation-notified user
+
+## Session Risk Summary
+
+- Total sessions: 4
+- High risk sessions: 1
+- Medium risk sessions: 1
+- Low risk sessions: 2
+
+### Session details
+
+| user_id | session_id | risk_level | score | event_count | duration_seconds | session_start (UTC)        | session_end (UTC)          | reasons |
+|--------|-----------:|-----------|------:|------------:|-----------------:|----------------------------|----------------------------|---------|
+| u001 | 1 | High | 7 | 2 | 68 | 2026-05-04T14:48:02+00:00 | 2026-05-04T14:49:10+00:00 | night_time(+2), restricted_resource(+2), denied_once(+1), denied_multiple(+2) |
+| u002 | 0 | Medium | 5 | 3 | 222 | 2026-05-04T14:50:45+00:00 | 2026-05-04T14:54:27+00:00 | night_time(+2), change_permission(+3) |
+| u001 | 0 | Low | 0 | 3 | 318 | 2026-05-04T00:00:15+00:00 | 2026-05-04T00:05:33+00:00 | None |
+| u003 | 0 | Low | 0 | 3 | 305 | 2026-05-04T01:15:00+00:00 | 2026-05-04T01:20:05+00:00 | None |
+
+## User Risk Summary
+
+- Total users in Day7 analysis: 3
+- Users with final High risk: 1
+- Users with final Medium risk: 1
+- Users with final Low risk: 1
+
+### User details
+
+| user_id | final_risk_level | total_session_score | session_count | high_sessions | medium_sessions | low_sessions |
+|--------|------------------|--------------------:|--------------:|--------------:|----------------:|-------------:|
+| u001 | High | 7 | 2 | 1 | 0 | 1 |
+| u002 | Medium | 5 | 1 | 0 | 1 | 0 |
+| u003 | Low | 0 | 1 | 0 | 0 | 1 |
+
+## Notes
+
+- This report is generated from the current MVP scoring logic.
+- Low risk events are counted in the summary but omitted from detailed event findings.
+- Data in this report is sample data for MVP verification.
+- Current event-level rules focus on leave status, resignation notice, and unauthorized resource access.
+- Day7 session start/end timestamps are handled as UTC (sample CSV is stored in UTC).
+- Event-level JSON and Day7 CSV are separate sample datasets used for different layers of the MVP.
+- Day7 session-level and user-level analysis is included when sample log data is available.
 ```
-
-
-The current report also includes a Medium Risk Findings section and a Notes section in the generated output.
-
-
-At the current stage, Day7 session-level and user-level results are printed to the console and are not yet embedded into the generated Markdown report.[file:279]
 
 
 ---
@@ -422,6 +462,7 @@ Current completed milestones include:
 - Day 5: Markdown report generation
 - Day 6: `EvaluationResult` integration and output structure cleanup
 - Day 7: Session-based scoring and user-level risk aggregation
+- Day 8: Session-level and user-level risk tables embedded into the Markdown report
 
 
 ---
@@ -433,8 +474,7 @@ Current completed milestones include:
 Planned or possible future improvements include:
 
 
-- Embed Day7 session and user summaries into the Markdown report
-- Group findings by user
+- Group findings by user in the event-level section
 - Handle missing HR or privilege context more explicitly
 - Enrich report formatting
 - Add tests
@@ -468,6 +508,7 @@ Insight-Linker is a small portfolio project that reflects that transition by com
 
 - All data in this repository is sample data for MVP development.
 - This is a learning and portfolio project, not a production-ready detection platform.
+- Event-level and Day7 session-level analyses are intentionally based on separate sample datasets.
 - Detailed work logs and code explanation notes are currently managed locally and are not included in this repository.
 
 

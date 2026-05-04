@@ -9,11 +9,17 @@ from app.models import (
 
 
 def is_after_hours(timestamp: str) -> bool:
+    """
+    対象の timestamp が時間外（22:00〜05:59）かどうかを判定する。
+    """
     hour = int(timestamp[11:13])
     return hour < 6 or hour >= 22
 
 
 def is_allowed_resource(resource_path: str, allowed_resources: list[str]) -> bool:
+    """
+    アクセス先 resource_path が、許可されたパスプレフィックス群に含まれているかを判定する。
+    """
     return any(resource_path.startswith(prefix) for prefix in allowed_resources)
 
 
@@ -24,7 +30,7 @@ def evaluate_activity(
 ) -> EvaluationResult:
     """
     1件のユーザーアクティビティについて、
-    HRコンテキストと権限情報を突き合わせてリスク評価を行い、
+    HR コンテキストと権限情報を突き合わせてリスク評価を行い、
     EvaluationResult として返す。
     """
 
@@ -32,10 +38,10 @@ def evaluate_activity(
     hr = hr_contexts.get(user_id)
     privilege = access_privileges.get(user_id)
 
-    # 元イベントに対する簡易な一意ID（MVPでは timestamp + user_id + action で生成）
+    # 元イベントに対する簡易な一意 ID（MVP では timestamp + user_id + action で生成）
     event_id = f"{activity.timestamp}-{activity.user_id}-{activity.action}"
 
-    # 評価メタ情報
+    # 評価メタ情報（いつ・どのスコアリングプロファイルで評価したか）
     evaluated_at = datetime.now().isoformat(timespec="seconds")
     scoring_profile = "MVP_v1_3rules"
 
@@ -44,30 +50,31 @@ def evaluate_activity(
     reasons: list[str] = []
     rule_hits: list[str] = []
 
-    # ロバストネス・品質フラグ
+    # ロバストネス・品質フラグ（コンテキスト欠損などを記録する）
     has_missing_hr = hr is None
     has_missing_privilege = privilege is None
     error_flags: list[str] = []
 
-    # HR 情報が無い・権限情報が無い場合は、その旨を error_flags に記録（MVPではスコアには反映しない）
+    # HR 情報が無い・権限情報が無い場合は、その旨を error_flags に記録
+    # （MVP ではスコアには反映せず、品質の注意点として扱う）
     if has_missing_hr:
         error_flags.append("MISSING_HR_CONTEXT")
     if has_missing_privilege:
         error_flags.append("MISSING_ACCESS_PRIVILEGE")
 
-    # 休暇中アクセスルール
+    # ルール1: 休暇中アクセス
     if hr and hr.is_on_leave:
         risk_score += 2
         reasons.append("Access during leave")
         rule_hits.append("ON_LEAVE_ACCESS")
 
-    # 退職通知済み + 時間外アクセスルール
+    # ルール2: 退職通知済み + 時間外アクセス
     if hr and hr.resignation_notified and is_after_hours(activity.timestamp):
         risk_score += 3
         reasons.append("After-hours access by resignation-notified user")
         rule_hits.append("AFTER_HOURS_RESIGNATION_ACCESS")
 
-    # 許可外リソースアクセスルール
+    # ルール3: 許可外リソースアクセス
     if privilege and not is_allowed_resource(
         activity.resource_path, privilege.allowed_resources
     ):

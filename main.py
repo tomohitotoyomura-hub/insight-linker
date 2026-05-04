@@ -19,6 +19,7 @@ from day7_analysis import run_day7_analysis
 
 def main() -> None:
     # ===== 入力データの読み込み =====
+    # Day1〜Day6で使用してきた3つのJSONを読み込む
     user_activities = load_user_activities("data/raw/user_activity.json")
     hr_contexts = load_hr_contexts("data/raw/hr_context.json")
     access_privileges = load_access_privileges("data/raw/access_privileges.json")
@@ -31,6 +32,7 @@ def main() -> None:
     print()
 
     # ===== アクティビティ単位の評価（従来の Day1〜Day6 相当） =====
+    # ここでは各イベントを1件ずつ評価し、リスクレベル・スコア・理由を算出する
     print("=== Evaluation Results (per activity) ===")
 
     # 全評価結果を後でMarkdownレポート化するために格納するリスト
@@ -56,19 +58,21 @@ def main() -> None:
     _, session_risk_df, user_risk_df = run_day7_analysis("data/day7_sample_logs.csv")
 
     # ここではコンソール出力は day7_analysis 側に任せている。
-    # 将来的にレポート統合する場合は、user_risk_df / session_risk_df を
-    # Markdown セクションに変換して report_text に追記することを想定。
+    # Day8 ではこの session_risk_df / user_risk_df を Markdown レポートにも統合する。
+    print()  # 区切り
 
-    # ===== Markdownレポートの生成（現時点ではアクティビティ単位のみ） =====
-    report_text = build_markdown_report(results)
-
-    # TODO: Day7 の結果をレポートに統合する場合は、
-    # ここで user_risk_df / session_risk_df から概要セクションを組み立てて
-    # report_text に追記する想定:
-    #
-    # report_text += "\n\n" + build_day7_summary_section(user_risk_df, session_risk_df)
+    # ===== Markdownレポートの生成（Day8: Day7結果を統合） =====
+    # Day1〜Day6のアクティビティ単位評価 results に加えて、
+    # Day7で算出したセッション単位・ユーザー単位の集計結果も渡す。
+    # report_gen.py 側で、それぞれを専用セクションとして Markdown に変換する。
+    report_text = build_markdown_report(
+        results,
+        session_risk_df=session_risk_df,
+        user_risk_df=user_risk_df,
+    )
 
     # ===== レポートファイルの保存 =====
+    # ファイル名はタイムスタンプ付きにして、複数回実行しても上書きしないようにする
     timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_path = f"outputs/{timestamp_str}_insight_report.md"
 

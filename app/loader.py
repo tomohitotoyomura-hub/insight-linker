@@ -5,6 +5,10 @@ from app.models import UserActivity, HRContext, AccessPrivilege
 
 
 def load_user_activities(file_path: str) -> list[UserActivity]:
+    """
+    ユーザーアクティビティの JSON ファイルを読み込み、
+    UserActivity のリストとして返す。
+    """
     path = Path(file_path)
     with path.open("r", encoding="utf-8") as f:
         raw_data = json.load(f)
@@ -14,6 +18,10 @@ def load_user_activities(file_path: str) -> list[UserActivity]:
 
 
 def load_hr_contexts(file_path: str) -> dict[str, HRContext]:
+    """
+    HR コンテキストの JSON ファイルを読み込み、
+    user_id をキーとする HRContext の辞書として返す。
+    """
     path = Path(file_path)
     with path.open("r", encoding="utf-8") as f:
         raw_data = json.load(f)
@@ -23,6 +31,10 @@ def load_hr_contexts(file_path: str) -> dict[str, HRContext]:
 
 
 def load_access_privileges(file_path: str) -> dict[str, AccessPrivilege]:
+    """
+    アクセス権限の JSON ファイルを読み込み、
+    user_id をキーとする AccessPrivilege の辞書として返す。
+    """
     path = Path(file_path)
     with path.open("r", encoding="utf-8") as f:
         raw_data = json.load(f)
