@@ -1,37 +1,27 @@
 # Insight-Linker
 
-Insight-Linker is a lightweight Python CLI tool for **insider risk triage**.  
-It combines user activity logs, HR context, and access privileges to identify potentially suspicious events and generate an explainable Markdown report.[1]
+Insight-Linker is a lightweight Python CLI tool for insider risk triage. It combines user activity logs, HR context, and access privileges to identify potentially suspicious events and generate an explainable Markdown report.
 
-This project was built as a small MVP to explore how infrastructure-style operational data can be connected with governance and security context in an **auditable, readable, and extensible** way.[2]
+This project was built as a small MVP to explore how infrastructure-style operational data can be connected with governance and security context in an auditable, readable, and extensible way.
 
 ---
 
 ## Why this project matters
 
-Insider risk is rarely visible from a single log source alone.  
-A file access event may look normal in isolation, but become more meaningful when combined with HR status (for example, leave or resignation notice) and access privilege context.[1]
+Insider risk is rarely visible from a single log source alone. A file access event may look normal in isolation, but become more meaningful when combined with HR status, such as leave or resignation notice, and access privilege context.
 
-Insight-Linker is a practice project designed to model that idea in code:
-
-- correlate multiple context sources
-- assign a simple risk score
-- explain *why* an event was flagged
-- generate a readable report for review
+Insight-Linker is a practice project designed to model that idea in code by correlating multiple context sources, assigning a simple risk score, explaining why an event was flagged, and generating a readable report for review.
 
 ---
 
 ## Features
 
-- Load sample JSON data for:
-  - user activity events
-  - HR context
-  - access privileges
-- Evaluate each event with a rule-based scoring engine
-- Classify events as **Low / Medium / High**
-- Return structured results through an `EvaluationResult` dataclass
-- Attach human-readable reasons to each risk decision
-- Generate a Markdown report focused on Medium / High risk events
+- Load sample JSON data for user activity events, HR context, and access privileges.
+- Evaluate each event with a rule-based scoring engine.
+- Classify events as **Low / Medium / High** based on the current MVP scoring logic.
+- Return structured results through an `EvaluationResult` dataclass.
+- Attach human-readable reasons to each risk decision.
+- Generate a Markdown report focused on Medium and High risk events.
 
 ---
 
@@ -39,15 +29,15 @@ Insight-Linker is a practice project designed to model that idea in code:
 
 A user accesses a sensitive file path:
 
-- during leave, or
-- after hours after resignation notice, or
+- during leave
+- after hours after a resignation notice
 - outside their allowed resource scope
 
 The tool scores the event and records the reasons behind the result so the outcome is not just a label, but an explainable finding.
 
 ---
 
-## Project Structure
+## Project structure
 
 ```text
 .
@@ -95,7 +85,7 @@ The tool scores the event and records the reasons behind the result so the outco
 
 ## Current scoring logic
 
-The current MVP includes simple example rules such as:
+The current MVP includes three explicit example rules:
 
 - Access during leave
 - After-hours access by a resignation-notified user
@@ -105,9 +95,9 @@ These rules are intentionally small and explicit so the project remains easy to 
 
 ---
 
-## Tech Stack
+## Tech stack
 
-- Python 3.x
+- Python 3.13.13
 - Python `dataclasses`
 - JSON sample inputs
 - Rule-based scoring logic
@@ -117,7 +107,7 @@ No external dependencies are required for the current MVP.
 
 ---
 
-## Getting Started
+## Getting started
 
 ### 1. Clone the repository
 
@@ -130,8 +120,10 @@ cd insight-linker
 
 ```bash
 python -m venv .venv
+
 # Windows PowerShell
 .venv\Scripts\Activate.ps1
+
 # macOS / Linux
 source .venv/bin/activate
 ```
@@ -148,10 +140,10 @@ python main.py
 
 When you run `python main.py`, the tool will:
 
-1. load sample activity, HR, and privilege data from `data/raw/`
-2. evaluate each activity with the scoring engine
-3. print the evaluation results to the console
-4. generate a Markdown report under `outputs/`
+1. Load sample activity, HR, and privilege data from `data/raw/`
+2. Evaluate each activity with the scoring engine
+3. Print the evaluation results to the console
+4. Generate a Markdown report under `outputs/` with a timestamped filename
 
 ---
 
@@ -164,32 +156,49 @@ Loaded HR contexts: 3
 Loaded access privileges: 3
 
 === Evaluation Results ===
-user_id=u001, timestamp=..., risk_level=Low, risk_score=0, reasons=[]
-user_id=u002, timestamp=..., risk_level=Medium, risk_score=2, reasons=['Access during leave']
-user_id=u003, timestamp=..., risk_level=Low, risk_score=0, reasons=[]
-user_id=u001, timestamp=..., risk_level=Medium, risk_score=3, reasons=['After-hours access by resignation-notified user']
-user_id=u002, timestamp=..., risk_level=High, risk_score=5, reasons=['Access during leave', 'Access to unauthorized resource']
+user_id=u001, timestamp=2026-05-02T21:49:00, risk_level=Low, risk_score=0, reasons=[]
+user_id=u002, timestamp=2026-05-01T02:15:00, risk_level=Medium, risk_score=2, reasons=['Access during leave']
+user_id=u003, timestamp=2026-05-01T10:05:00, risk_level=Low, risk_score=0, reasons=[]
+user_id=u001, timestamp=2026-05-01T23:45:00, risk_level=Medium, risk_score=3, reasons=['After-hours access by resignation-notified user']
+user_id=u002, timestamp=2026-05-01T01:30:00, risk_level=High, risk_score=5, reasons=['Access during leave', 'Access to unauthorized resource']
+
+Markdown report generated: outputs/20260504_073214_insight_report.md
 ```
+
+This sample reflects the verified Day6 state after `EvaluationResult` integration, while preserving the same observable scoring behavior as earlier MVP output.
 
 ---
 
 ## Sample report output
 
-A generated report includes summary statistics and detailed findings for Medium / High risk events.
+A generated report includes summary statistics and detailed findings for Medium and High risk events.
 
 Example:
 
 ```markdown
 # Insight-Linker Risk Report
 
-- Unique users: 3
-- Total events: 5
-- High risk events: 1
-- Medium risk events: 2
+Generated at: 2026-05-04T07:32:14
+Target period: 2026-05-01 (sample data)
+Unique users: 3
+Scoring profile: MVP v1 (3 rules: leave status, resignation notice, unauthorized access)
 
-## High risk events
-- u002 | 2026-05-01T01:30:00 | score=5 | reasons: Access during leave, Access to unauthorized resource
+## Summary
+
+- Total events: 5
+- High risk events: 1 (20%)
+- Medium risk events: 2 (40%)
+- Low risk events: 2 (40%)
+
+## High Risk Findings
+
+### User u002 / 2026-05-01T01:30:00
+- Risk level: High
+- Risk score: 5
+- Reasons: Access during leave, Access to unauthorized resource
 ```
+
+The current report also includes a Medium Risk Findings section and a Notes section in the generated output.
 
 ---
 
@@ -207,11 +216,7 @@ This project was built with the following goals in mind:
   The MVP uses explicit rules and small modules instead of opaque logic.
 
 - **Extensibility**  
-  The structure should make it easy to add:
-  - more rules
-  - more input sources
-  - improved reporting
-  - error handling for missing context
+  The structure should make it easy to add more rules, more input sources, improved reporting, and stronger error handling for missing context.
 
 ---
 
@@ -221,10 +226,10 @@ This repository was developed incrementally as a small hands-on project.
 
 Current completed milestones include:
 
-- Day 1: local environment setup
-- Day 2: domain models and sample JSON creation
-- Day 3: loader implementation
-- Day 4: first scoring engine and Low / Medium / High validation
+- Day 1: Local environment setup
+- Day 2: Domain models and sample JSON creation
+- Day 3: Loader implementation
+- Day 4: First scoring engine and Low / Medium / High validation
 - Day 5: Markdown report generation
 - Day 6: `EvaluationResult` integration and output structure cleanup
 
@@ -232,20 +237,21 @@ Current completed milestones include:
 
 ## Possible next steps
 
-Planned or possible future improvements:
+Planned or possible future improvements include:
 
-- group findings by user
-- handle missing HR / privilege context more explicitly
-- enrich report formatting
-- add tests
-- add input validation
-- support additional insider risk scenarios
+- Group findings by user
+- Handle missing HR or privilege context more explicitly
+- Enrich report formatting
+- Add tests
+- Add input validation
+- Support additional insider risk scenarios
 
 ---
 
 ## Why I built this
 
-I have a background in IT infrastructure operations and am building toward roles in **insider risk, security operations, IT risk, and GRC**.  
+I have a background in IT infrastructure operations and am building toward roles in insider risk, security operations, IT risk, and GRC.
+
 Insight-Linker is a small portfolio project that reflects that transition by combining:
 
 - operational log thinking
@@ -259,6 +265,7 @@ Insight-Linker is a small portfolio project that reflects that transition by com
 
 - All data in this repository is sample data for MVP development.
 - This is a learning and portfolio project, not a production-ready detection platform.
+- Detailed work logs and code explanation notes are currently managed locally and are not included in this repository.
 
 ---
 
