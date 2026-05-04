@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific generated reports
+outputs/*.md
+
+# Local logs or scratch files
+*.log.local
