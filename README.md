@@ -389,6 +389,7 @@ Current completed milestones include:
 
 Additional Japanese design and implementation notes are available below:
 
+- Supplementary Japanese overview: `docs/README.ja.md`
 - `docs/code_explanation_part1_ja.md` — Day3 input layer, models, loader, and sample JSON overview.
 - `docs/code_explanation_part2_ja.md` — Day4 to Day5 scoring logic, report generation, and main flow updates.
 - `docs/code_explanation_part3_ja.md` — Day6 to Day8 structured results, session analysis, and report integration.
