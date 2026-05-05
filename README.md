@@ -1,29 +1,32 @@
 # Insight-Linker
 
-
 Insight-Linker is a lightweight Python CLI tool for insider risk triage. It combines user activity logs, HR context, and access privileges to identify potentially suspicious events and generate an explainable Markdown report.
-
 
 This project was built as a small MVP to explore how infrastructure-style operational data can be connected with governance and security context in an auditable, readable, and extensible way.
 
-
 ---
 
+## Why I built this
+
+I built this project to connect raw technical activity data with HR, legal, and governance context, because insider risk is rarely visible from logs alone.
+
+This repository also reflects a personal transition from infrastructure operations toward insider risk, security operations, IT risk, and GRC-oriented work.
+
+Insight-Linker is therefore not just a coding exercise. It is a small portfolio project designed to show how operational log thinking, explainable triage logic, and governance-oriented reporting can be combined in one MVP.
+
+---
 
 ## Why this project matters
 
+A single file access event may look normal in isolation, but become more meaningful when combined with HR status such as leave or resignation notice, and access privilege context.
 
-Insider risk is rarely visible from a single log source alone. A file access event may look normal in isolation, but become more meaningful when combined with HR status, such as leave or resignation notice, and access privilege context.
+Insight-Linker models that idea in code by correlating multiple context sources, assigning a simple risk score, explaining why an event was flagged, and generating a readable report for review.
 
-
-Insight-Linker is a practice project designed to model that idea in code by correlating multiple context sources, assigning a simple risk score, explaining why an event was flagged, and generating a readable report for review.
-
+The Day7 and Day8 extensions push that idea further by adding session-level and user-level views, so suspicious behavior can be reviewed not only as an isolated event but also as a behavioral pattern over time.
 
 ---
 
-
 ## Features
-
 
 - Load sample JSON data for user activity events, HR context, and access privileges.
 - Evaluate each event with a rule-based scoring engine.
@@ -35,32 +38,19 @@ Insight-Linker is a practice project designed to model that idea in code by corr
 - Aggregate final user-level risk based on session outcomes.
 - Include session-level and user-level risk tables in the generated Markdown report.
 
-
 ---
-
 
 ## Example use case
 
-
-A user accesses a sensitive file path:
-
-
-- during leave
-- after hours after a resignation notice
-- outside their allowed resource scope
-
+A file access event may become more meaningful when it occurs during leave, after hours following a resignation notice, or outside the user’s allowed resource scope.
 
 The tool scores the event and records the reasons behind the result so the outcome is not just a label, but an explainable finding.
 
-
-The Day7 extension also looks at grouped activity over time, so suspicious behavior can be assessed not only as a single event, but also as a session pattern.
-
+The Day7 extension also groups activity over time, allowing suspicious behavior to be assessed as a session pattern rather than only as a single event.
 
 ---
 
-
 ## Project structure
-
 
 ```text
 .
@@ -80,18 +70,15 @@ The Day7 extension also looks at grouped activity over time, so suspicious behav
 │  └─ (generated) insight reports
 │
 ├─ requirements.txt
-├─ day7_analysis.py    # Session and user-level risk aggregation
+├─ day7_analysis.py       # Session and user-level risk aggregation
 ├─ main.py
 └─ README.md
 ```
 
-
 ### Modules
-
 
 - `loader.py`  
   Loads sample JSON data into typed Python objects.
-
 
 - `models.py`  
   Defines the domain model:
@@ -100,63 +87,45 @@ The Day7 extension also looks at grouped activity over time, so suspicious behav
   - `AccessPrivilege`
   - `EvaluationResult`
 
-
 - `core_engine.py`  
-  Applies scoring logic and returns a structured evaluation result.
-
+  Applies event-level scoring logic and returns a structured evaluation result.
 
 - `report_gen.py`  
   Builds a Markdown report for human review, including event-level findings and Day7 session/user summaries when available.
 
-
 - `day7_analysis.py`  
   Groups log events into 30-minute sessions, scores each session, and aggregates final user-level risk.
-
 
 - `main.py`  
   Entry point that loads data, evaluates activities, prints results, runs Day7 analysis, and generates the report.
 
-
 ---
-
 
 ## Current scoring logic
 
-
 The current MVP includes three explicit example rules:
 
+- Access during leave.
+- After-hours access by a resignation-notified user.
+- Access to an unauthorized resource path.
 
-- Access during leave
-- After-hours access by a resignation-notified user
-- Access to an unauthorized resource path
-
-
-These rules are intentionally small and explicit so the project remains easy to understand and extend.
-
+These rules are intentionally small and explicit so the project remains easy to understand, validate, and extend.
 
 ---
 
-
 ## Day7 session analysis
 
+In addition to event-level scoring, the project includes a Day7 analysis step that groups log events into user sessions and derives a higher-level risk view.
 
-In addition to event-level scoring, the project now includes a Day7 analysis step that groups log events into user sessions and derives a higher-level risk view.
-
-
-The goal is to move beyond isolated events and highlight risky behavior patterns across a session or across a user's recent activity.
-
+The goal is to move beyond isolated events and highlight risky behavior patterns across a session or across a user’s recent activity.
 
 ### Session grouping
 
-
 Events are grouped by `user_id` and ordered by timestamp.
-
 
 A new session starts when the gap between two consecutive events is **30 minutes or more**.
 
-
 Each session includes:
-
 
 - `user_id`
 - `session_id`
@@ -165,15 +134,11 @@ Each session includes:
 - `duration_seconds`
 - `event_count`
 
-
 ### Session scoring rules
-
 
 Each session is scored using a small rule-based model.
 
-
 Current Day7 rules include:
-
 
 - Night-time activity (`22:00-05:59 JST`)
 - Access to `/restricted/` resources
@@ -182,26 +147,19 @@ Current Day7 rules include:
 - One or more denied actions
 - Multiple denied actions within the same session
 
-
 Sessions are then classified as:
-
 
 - **High** for score `>= 6`
 - **Medium** for score `>= 3`
 - **Low** otherwise
 
-
 ### User-level aggregation
-
 
 After session scoring, the tool also builds a user-level summary.
 
-
-For each user, the final risk level is based on the highest session risk observed across that user's sessions.
-
+For each user, the final risk level is based on the highest session risk observed across that user’s sessions.
 
 The aggregation also includes:
-
 
 - total session score
 - total session count
@@ -209,12 +167,9 @@ The aggregation also includes:
 - number of Medium sessions
 - number of Low sessions
 
-
 ---
 
-
 ## Tech stack
-
 
 - Python 3.13.13
 - Python `dataclasses`
@@ -224,27 +179,20 @@ The aggregation also includes:
 - Markdown report generation
 - `pandas` for Day7 session aggregation
 
-
 The core MVP logic is implemented in Python modules, while Day7 adds tabular session analysis on top of the event-level model.
-
 
 ---
 
-
 ## Getting started
 
-
 ### 1. Clone the repository
-
 
 ```bash
 git clone https://github.com/tomohitotoyomura-hub/insight-linker.git
 cd insight-linker
 ```
 
-
 ### 2. Create and activate a virtual environment (optional)
-
 
 ```bash
 python -m venv .venv
@@ -256,45 +204,34 @@ python -m venv .venv
 source .venv/bin/activate
 ```
 
-
 ### 3. Install dependencies
-
 
 ```bash
 pip install -r requirements.txt
 ```
 
-
 ### 4. Run the project
-
 
 ```bash
 python main.py
 ```
 
-
 ---
-
 
 ## What the script does
 
-
 When you run `python main.py`, the tool will:
 
-
-1. Load sample activity, HR, and privilege data from `data/raw/`
-2. Evaluate each activity with the scoring engine
-3. Print the event-level evaluation results to the console
-4. Run Day7 session analysis on sample log data
-5. Print session-level and user-level risk tables
-6. Generate a Markdown report under `outputs/` with a timestamped filename
-
+1. Load sample activity, HR, and privilege data from `data/`.
+2. Evaluate each activity with the scoring engine.
+3. Print the event-level evaluation results to the console.
+4. Run Day7 session analysis on sample log data.
+5. Print session-level and user-level risk tables.
+6. Generate a Markdown report under `outputs/` with a timestamped filename.
 
 ---
 
-
 ## Sample console output
-
 
 ```text
 Insight-Linker MVP setup complete
@@ -325,21 +262,15 @@ user_id final_risk_level  total_score  session_count  high_session_count  medium
 Markdown report generated: outputs/20260505_073903_insight_report.md
 ```
 
-
-This sample reflects the verified Day8 state, combining event-level scoring with session-level and user-level risk aggregation, and generating a single Markdown report that includes all three layers.
-
+This sample reflects the verified Day8 state, combining event-level scoring with session-level and user-level risk aggregation and generating a single Markdown report that includes all three layers.
 
 ---
 
-
 ## Sample report output
-
 
 A generated report includes summary statistics, detailed findings for Medium and High risk events, and Day7 session-level and user-level summaries.
 
-
 Example:
-
 
 ```markdown
 # Insight-Linker Risk Report
@@ -417,43 +348,31 @@ Scoring profile: MVP v1 (3 rules: leave status, resignation notice, unauthorized
 - Day7 session-level and user-level analysis is included when sample log data is available.
 ```
 
-
 ---
-
 
 ## Design goals
 
-
 This project was built with the following goals in mind:
-
 
 - **Explainability**  
   Every flagged event should include reasons, not just a score.
 
-
 - **Traceability**  
   Output should be easy to inspect and reuse in reports.
-
 
 - **Simplicity**  
   The MVP uses explicit rules and small modules instead of opaque logic.
 
-
 - **Extensibility**  
   The structure should make it easy to add more rules, more input sources, improved reporting, and stronger error handling for missing context.
 
-
 ---
-
 
 ## Development progress
 
-
 This repository was developed incrementally as a small hands-on project.
 
-
 Current completed milestones include:
-
 
 - Day 1: Local environment setup
 - Day 2: Domain models and sample JSON creation
@@ -464,58 +383,40 @@ Current completed milestones include:
 - Day 7: Session-based scoring and user-level risk aggregation
 - Day 8: Session-level and user-level risk tables embedded into the Markdown report
 
-
 ---
 
+## Documentation
+
+Additional Japanese design and implementation notes are available below:
+
+- `docs/code_explanation_part1_ja.md` — Day3 input layer, models, loader, and sample JSON overview.
+- `docs/code_explanation_part2_ja.md` — Day4 to Day5 scoring logic, report generation, and main flow updates.
+- `docs/code_explanation_part3_ja.md` — Day6 to Day8 structured results, session analysis, and report integration.
+
+---
 
 ## Possible next steps
 
-
 Planned or possible future improvements include:
 
-
-- Group findings by user in the event-level section
-- Handle missing HR or privilege context more explicitly
-- Enrich report formatting
-- Add tests
-- Add input validation
-- Support additional insider risk scenarios
-
+- Group findings by user in the event-level section.
+- Handle missing HR or privilege context more explicitly.
+- Enrich report formatting.
+- Add tests.
+- Add input validation.
+- Support additional insider risk scenarios.
 
 ---
-
-
-## Why I built this
-
-
-I have a background in IT infrastructure operations and am building toward roles in insider risk, security operations, IT risk, and GRC.
-
-
-Insight-Linker is a small portfolio project that reflects that transition by combining:
-
-
-- operational log thinking
-- security triage logic
-- governance-oriented reporting
-- explainable output design
-
-
----
-
 
 ## Notes
-
 
 - All data in this repository is sample data for MVP development.
 - This is a learning and portfolio project, not a production-ready detection platform.
 - Event-level and Day7 session-level analyses are intentionally based on separate sample datasets.
-- Detailed work logs and code explanation notes are currently managed locally and are not included in this repository.
-
+- Japanese code explanation notes can be maintained under `docs/` as supplementary design and learning records.
 
 ---
 
-
 ## License
-
 
 MIT
