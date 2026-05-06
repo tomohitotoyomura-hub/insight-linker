@@ -396,6 +396,16 @@ Additional Japanese design and implementation notes are available below:
 
 ---
 
+## Related documentation
+
+This repository also includes a short summary of a separate personal AI governance PoC focused on generative AI security controls, digital trust, and auditability.
+
+- [AI Governance PoC Summary](docs/ai_governance_poc_summary.md)
+
+The PoC is related in theme, but separate in scope: Insight-Linker focuses on insider risk triage from operational data, while the AI governance PoC explores control design for generative AI use. A fuller Japanese version already exists, an English full version is planned, and the detailed document can be shared separately as part of CV / application materials.
+
+---
+
 ## Possible next steps
 
 Planned or possible future improvements include:
